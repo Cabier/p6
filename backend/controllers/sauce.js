@@ -20,12 +20,16 @@ exports.createSauce=(req,res) => {
 }
 
 exports.modifySauce = (req, res, next) => {
-    sauce.updateOne({_id:req.params.id},{...req.body,_id:req.params.id})// permet de mettre à jour ou de modifier un thing dans notre base de données 
-   .then(() =>res.status(200).json({message:'Objet modifié!'}))
-   .catch(error => res.status(400).json({error}))
+  let imageUrl = `${req.protocol}://${req.get("host")}/images/${req.file.filename}`;
+  Sauce.updateOne({_id: req.params.id}, {...req.body, imageUrl: imageUrl}) // permet de mettre à jour ou de modifier un thing dans notre base de données 
+  .then(() => {
+     res.status(200).json({message:'Objet modifié!'});
+  }).catch((error) => {
+     res.status(400).json({error})
+  })
 }
 
-exports.deleteSauce = (req, res,next) => {
+exports.deleteSauce = (req, res) => {
   Sauce.findOne({_id:req.params.id}).then(
     (sauce) => {
     if (!sauce) {
@@ -39,9 +43,9 @@ exports.deleteSauce = (req, res,next) => {
       });
     }
     Sauce.deleteOne({_id:req.params.id})
-    .then(Sauce => res.status(200).json({message:'Objet suprimé!'}))
-    .catch(error => res.status(400).json({error}))
-  })
+    .then((Sauce) => res.status(200).json({message:'Objet suprimé!'}))
+    .catch((error) => res.status(400).json({error}))
+  }).catch((error) => res.status(400).json({error}))
 }
 
 exports.getAllSauce = (req, res) => {

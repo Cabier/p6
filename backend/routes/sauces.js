@@ -10,7 +10,7 @@ router.get('/', auth,multer, sauceCtrl.getAllSauce);
 
 router.post('/',auth, multer, sauceCtrl.createSauce); 
 
-router.delete('/:id',auth,multer,sauceCtrl.deleteSauce);
+router.delete('/:id', auth, multer, sauceCtrl.deleteSauce);
 
 
      
