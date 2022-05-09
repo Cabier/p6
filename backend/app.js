@@ -10,16 +10,18 @@ const usersRoutes = require("./routes/user");
 
 const userLikes = require("./controllers/like");
 
-//const userDislikes = require("./controllers/dislikes");
+require("dotenv").config();
 
-const helmet = require("helmet");
-
-const rateLimit = require('express-rate-limit')
+const rateLimit = require("express-rate-limit");
 
 mongoose
   .connect(
-    "mongodb+srv://papayvou:Franklin1@cluster0.3me1g.mongodb.net/myFirstDatabase?retryWrites=true&w=majority",
-    { useNewUrlParser: true}
+    "mongodb+srv://" +
+      process.env.DB_USER_PASS +
+      "@cluster0.3me1g.mongodb.net/" +
+      process.env.D8_NAME +
+      "?retryWrites=true&w=majority",
+    { useNewUrlParser: true, useUnifiedTopology: true }
   )
   .then(() => console.log("Connexion à MongoDB réussie !"))
   .catch(() => console.log("Connexion à MongoDB échouée !"));
@@ -42,17 +44,16 @@ app.use((req, res, next) => {
 // (empèche les requette au image statique (mais seulement depuis le front)) REGLE DES FAILLES DE SECURITE DANS LES ENTETE HTTP
 // app.use(helmet());
 
-
 // RATE LIMIT PERMET DE LIMITER LE NOMBRE DE REQUETE QUI PEUVENT ETRE FAITE SUR LAPI SUR UNE PERIODE DONNER PAR EX ON LIMITE 100 REQUETES PAR 15 MINUTES
 const limiter = rateLimit({
-	windowMs: 15 * 60 * 1000, // 15 minutes
-	max: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
-	standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
-	legacyHeaders: false, // Disable the `X-RateLimit-*` headers
-})
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
+  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+});
 
 // Apply the rate limiting middleware to all requests
-app.use(limiter)
+app.use(limiter);
 /** la route /images renvoie les fichier brute (statique) du répertoire images*/
 app.use("/images", express.static("images"));
 
@@ -63,5 +64,4 @@ app.use("/api/sauces", userLikes);
 
 module.exports = app;
 
-
-//IDDE DIMPLEMENTATION DE SECU : PASSWORD VALIDATOR / CRYPTO JS / 
+//IDDE DIMPLEMENTATION DE SECU : PASSWORD VALIDATOR / CRYPTO JS /

@@ -20,8 +20,13 @@ exports.createSauce=(req,res) => {
 }
 
 exports.modifySauce = (req, res, next) => {
-  let imageUrl = `${req.protocol}://${req.get("host")}/images/${req.file.filename}`;
-  Sauce.updateOne({_id: req.params.id}, {...req.body, imageUrl: imageUrl}) // permet de mettre à jour ou de modifier un thing dans notre base de données 
+  const sauceObject = req.file ?
+  {
+    ...JSON.parse(req.body.sauce),
+    imageUrl:`${req.protocol}://${req.get('host')}/images/${req.file.filename}`
+  }:{ ...req.body};
+  
+  Sauce.updateOne ({_id:req.params.id},{...sauceObject,_id:req.params.id})// permet de mettre à jour ou de modifier un thing dans notre base de données 
   .then(() => {
      res.status(200).json({message:'Objet modifié!'});
   }).catch((error) => {
