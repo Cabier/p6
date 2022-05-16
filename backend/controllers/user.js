@@ -1,6 +1,6 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const User = require("../models/User");
+const User = require("../models/user");
 
 exports.signup = (req, res, next) => {
   // création de nouveau users dans la base de données à partir de la connection de l'incription depuis l'application front end

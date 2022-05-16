@@ -1,5 +1,5 @@
 //controllers stock la logique métier
-const Sauce = require('../models/Sauce');
+const Sauce = require('../models/sauce');
 
 exports.createSauce=(req,res) => {
       console.log("req.body",req.body)
