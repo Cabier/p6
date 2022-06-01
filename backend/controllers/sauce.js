@@ -14,7 +14,7 @@ exports.createSauce=(req,res) => {
       
   })
   .catch((error) => {
-      console.log(error)
+      console.log("error",error)
       res.status(400).json({message : "erreur de création de sauce"});
   })
 }
@@ -66,7 +66,7 @@ exports.getAllSauce = (req, res) => {
     // console.log("Mes sauces", sauces);
     res.status(200).json(sauces);
   }).catch((error) => {
-    res.status(400).json({error});
+    res.status(400).json({message:`peut pas récupérer les sauces`});
   });
 }
 exports.getoneSauce = (req, res,next) => {

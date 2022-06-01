@@ -4,7 +4,7 @@ const User = require("../models/user");
 
 exports.signup = (req, res, next) => {
   // création de nouveau users dans la base de données à partir de la connection de l'incription depuis l'application front end
-  bcrypt
+  bcrypt//fonction de hashage qui sale le mot de passe
     .hash(req.body.password, 10) // va crypter le mot de passe
     .then((hash) => {
       const user = new User({
@@ -20,6 +20,7 @@ exports.signup = (req, res, next) => {
 };
 // permet au utilisateurs existant de se connecter à l'application donc on va commencer par trouver le user dans la base de données qui correspond à l'adresse email entrée par l'user de l'application
 exports.login = (req, res, next) => {
+  console.log(`req.body`,req.body)
   User.findOne({ email: req.body.email }) // dans cette fonction login on récupére l'utilisateur de la base qui correspond à l'adresse mail entrée
     .then((user) => {
       if (!user) {
@@ -37,7 +38,7 @@ exports.login = (req, res, next) => {
             token: jwt.sign(
               { userId: user._id }, // on encode l'user id pour la création de nouveaux objets
               "RANDOM_TOKEN_SECRET",
-              { expiresIn: "24h" }
+              { expiresIn: "100h" }
             ),
           });
         })
