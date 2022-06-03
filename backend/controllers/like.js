@@ -2,136 +2,51 @@ const express = require("express");
 const Router = express.Router();
 const Sauce = require("../models/sauce");
 
-Router.post("/:id/like", (req, res) => {
-  // donnée passée en parametre de requette
-  const { id } = req.params;
+Router.post("/:id/like",  async (req, res, next) => {
   const { userId, like } = req.body;
-  // recherche de produit
-  Sauce.find({ _id: id }, (err, sauces) => {
-    // cas erreur server
-    if (err) {
-      res.status(400).json({ status: 400, message: "server error" });
-      return;
-    }
-    // on trouve pas le produit
-    if (sauces.length === 0) {
-      res.status(401).json({ status: 400, message: "empty list" });
-      return;
-    }
+  const { id } = req.params;
 
-    if (like === 0) {
-      // suppression de like
-      if (sauces[0].usersLiked.includes(userId)) {
-        Sauce.findOneAndUpdate(
-          { _id: id },
-          // 2 champs à mettre à jour
-          {
-            likes: sauces[0].likes - 1,
-            usersLiked: sauces[0].usersLiked.filter((id) => id != userId),
-          },
-          (err, sauceupdated) => {
-            // cas erreur server
-            if (err) {
-              res.status(400).json({ status: 400, message: "server error" });
-
-              // cas erreur update dans la bd
-            } else if (!sauceupdated) {
-              res
-                .status(400)
-                .json({ status: 400, message: "error de mise à jour " });
-              return;
-              // toute est bon
-            }
-          }
-        );
-        res.status(200).json({ status: 200, message: "like deleted" });
-        return;
-      }
-      // suppression de dislike
-      if (sauces[0].usersDisliked.includes(userId)) {
-        Sauce.findOneAndUpdate(
-          { _id: id },
-          // 2 champs à mettre à jour
-          {
-            dislikes: sauces[0].dislikes - 1,
-            usersDisliked: sauces[0].usersDisliked.filter((id) => id != userId),
-          },
-          (err, sauceupdated) => {
-            // cas erreur server
-            if (err) {
-              res.status(400).json({ status: 400, message: "server error" });
-
-              // cas erreur update dans la bd
-            } else if (!sauceupdated) {
-              res
-                .status(400)
-                .json({ status: 400, message: "error de mise à jour " });
-              return;
-              // toute est bon
-            }
-          }
-        );
-        res.status(200).json({ status: 200, message: "dislike deleted" });
-        return;
-      }
-    }
-    // cas de click sur like
-
-    if (like === 1) {
-      // suppression de like
-      Sauce.findOneAndUpdate(
+  switch (like) {
+    case 1:
+      return Sauce.updateOne(
         { _id: id },
-        // 2 champs à mettre à jour
-        {
-          likes: sauces[0].likes + 1,
-          usersLiked: [...sauces[0].usersLiked, userId],
-        },
-        (err, sauceupdated) => {
-          // cas erreur server
-          if (err) {
-            res.status(400).json({ status: 400, message: "server error" });
+        { $push: { usersLiked: userId }, $inc: { likes: 1 } }
+      )
+        .then(() => res.status(200).json({ message: "Updated" }))
+        .catch((e) => res.status(400).json({ error: "Error" }));
+    case 0:
+      const sauce = await Sauce.findOne({ _id: id });
 
-            // cas erreur update dans la bd
-          } else if (!sauceupdated) {
-            res
-              .status(400)
-              .json({ status: 400, message: "error de mise à jour " });
-            return;
-            // toute est bon
-          }
-        }
-      );
-      res.status(200).json({ status: 200, message: "like added" });
-      return;
-    }
-    //  cas de cclick sur dislike
-    if (like === -1) {
-      Sauce.findOneAndUpdate(
+      if (sauce.usersLiked.includes(userId)) {
+        return Sauce.updateOne(
+          { _id: id },
+          { $pull: { usersLiked: userId }, $inc: { likes: -1 } }
+        )
+          .then(() => res.status(200).json({ message: "Updated" }))
+          .catch((e) => res.status(400).json({ error: "Error" }));
+      } else if (sauce.usersDisliked.includes(userId)) {
+        return Sauce.updateOne(
+          { _id: id },
+          { $pull: { usersDisliked: userId }, $inc: { dislikes: -1 } }
+        )
+          .then(() => res.status(200).json({ message: "Updated" }))
+          .catch((e) => res.status(400).json({ error: "Error" }));
+      } else {
+        return res
+          .status(400)
+          .json({ error: "The user did not give a feedback yet" });
+      }
+
+    case -1:
+      return Sauce.updateOne(
         { _id: id },
-        // 2 champs à mettre à jour
-        {
-          dislikes: sauces[0].dislikes + 1,
-          usersDisliked: [...sauces[0].usersDisliked, userId],
-        },
-        (err, sauceupdated) => {
-          // cas erreur server
-          if (err) {
-            res.status(400).json({ status: 400, message: "server error" });
-
-            // cas erreur update dans la bd
-          } else if (!sauceupdated) {
-            res
-              .status(400)
-              .json({ status: 400, message: "error de mise à jour " });
-            return;
-            // toute est bon
-          }
-        }
-      );
-      res.status(200).json({ status: 200, message: "dislike deleted" });
-      return;
-    }
-  });
+        { $push: { usersDisliked: userId }, $inc: { dislikes: 1 } }
+      )
+        .then(() => res.status(200).json({ message: "Updated" }))
+        .catch((e) => res.status(400).json({ error: "Error" }));
+    default:
+      return res.status(400).json({message: "Erreur inconnue"})
+  }
 });
 
 module.exports = Router;
