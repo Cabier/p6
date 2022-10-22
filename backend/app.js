@@ -41,7 +41,7 @@ mongoose
 
 app.use((req, res, next) => {
   // 1er middleware qui sera executé par le server et il est général on va pas y spécifier de route (ex api/stuff)
-  res.setHeader("Access-Control-Allow-Origin", "http://127.0.0.1:8081"); //L'entête Access-Control-Allow-Origin renvoie une réponse indiquant si les ressources peuvent être partagées avec une origine donnée
+  res.setHeader("Access-Control-Allow-Origin", `${process.env.CLIENT_URL}`); //L'entête Access-Control-Allow-Origin renvoie une réponse indiquant si les ressources peuvent être partagées avec une origine donnée
 
   res.setHeader(
     "Access-Control-Allow-Headers",
